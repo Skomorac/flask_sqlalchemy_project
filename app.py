@@ -1,28 +1,30 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 import os
+from extensions import db
+from models import *
+from routes import *
+from flask_migrate import Migrate
 
-app = Flask(__name__)
+load_dotenv()
 
-# Configure the SQLAlchemy part of the app instance
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Using SQLite for simplicity
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object('config.Config')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Create the SQLAlchemy db instance
-db = SQLAlchemy(app)
+    db.init_app(app)
+    migrate = Migrate(app, db)
 
-# Define a User model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    with app.app_context():
+        db.create_all()
 
-    def __repr__(self):
-        return f'<User {self.username}>'
+    app.register_blueprint(main_bp)
 
-@app.route('/')
-def hello():
-    return "Hello, World!"
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
