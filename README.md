@@ -8,7 +8,7 @@ This is a basic template for starting a Flask backend project with SQLAlchemy an
 
 1. **Clone the Repository:**
 
-   git clone https://github.com/yourusername/flask_template.git new_project
+   git clone https://github.com/Skomorac/flask_sqlalchemy_project new_project
    cd new_project
 
 ## Create a Virtual Environment
